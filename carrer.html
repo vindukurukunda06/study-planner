@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#183f3b">
+	<title>CareerPath | Student Career Planner</title>
+	<style>
+		:root {
+			color-scheme: light;
+			font-family: "Avenir Next", Avenir, "Trebuchet MS", sans-serif;
+			font-synthesis: none;
+			color: #193c39;
+			background: #f3f2e9;
+			--ink: #193c39;
+			--muted: #64736e;
+			--line: #dce0d4;
+			--paper: #fffefa;
+			--forest: #183f3b;
+			--leaf: #367760;
+			--lime: #dce96d;
+			--coral: #e78369;
+			--sun: #e5b848;
+		}
+		* { box-sizing: border-box; }
+		body { min-width: 320px; margin: 0; background-color: #f3f2e9; background-image: repeating-linear-gradient(135deg, transparent 0 32px, #dce2d41d 32px 33px); }
+		button, input, select, textarea { font: inherit; }
+		a { color: inherit; }
+		button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid #d67453; outline-offset: 3px; }
+		.app { display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: 100vh; }
+		.sidebar { position: sticky; top: 0; display: flex; flex-direction: column; min-width: 0; height: 100vh; padding: 22px 15px 16px; background: var(--forest); color: #eef2e8; }
+		.brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 25px; text-decoration: none; }
+		.brand-mark { display: grid; width: 35px; height: 35px; place-items: center; border-radius: 10px 10px 10px 3px; background: var(--lime); color: var(--forest); font-size: 0.8rem; font-weight: 900; }
+		.brand-name { display: block; font-size: 0.98rem; font-weight: 850; }
+		.brand-sub { display: block; margin-top: 2px; color: #b7c9bd; font-size: 0.61rem; letter-spacing: 0.08em; text-transform: uppercase; }
+		.nav-caption { margin: 0 9px 8px; color: #97b0a4; font-size: 0.63rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+		.navigation { display: grid; gap: 4px; }
+		.nav-link { display: flex; align-items: center; gap: 10px; min-height: 41px; padding: 8px 10px; border-radius: 4px; color: #d2ded5; font-size: 0.76rem; font-weight: 700; text-decoration: none; }
+		.nav-link:hover, .nav-link[aria-current="location"] { background: #ffffff19; color: #fff; }
+		.nav-glyph { display: grid; width: 23px; height: 23px; place-items: center; border-radius: 6px; background: #ffffff15; color: var(--lime); font-size: 0.64rem; font-weight: 900; }
+		.sidebar-note { margin-top: auto; padding: 13px 10px 0; border-top: 1px solid #ffffff27; color: #b4c5b9; font-size: 0.67rem; line-height: 1.55; }
+		.sidebar-note strong { display: block; margin-bottom: 4px; color: #ecf1e7; font-size: 0.71rem; }
+		.main { display: grid; align-content: start; gap: 20px; width: min(100%, 1380px); min-width: 0; margin-inline: auto; padding: 25px clamp(18px, 3.6vw, 52px) 25px; counter-reset: workflow-step; }
+		#overview { display: grid; gap: 13px; }
+		.topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 0; }
+		.breadcrumb { margin: 0; color: var(--muted); font-size: 0.72rem; }
+		.local-status { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid #d4dfcb; border-radius: 4px; background: #faffef; color: #48604a; font-size: 0.66rem; font-weight: 750; }
+		.status-dot { width: 7px; height: 7px; border-radius: 50%; background: #4a9a69; }
+		.welcome { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; min-height: 0; margin-bottom: 0; overflow: hidden; border-radius: 7px; background: #dce96d; }
+		.welcome-copy { display: flex; flex-direction: column; justify-content: center; padding: 18px 22px; }
+		.eyebrow { margin: 0 0 9px; color: #4e6749; font-size: 0.64rem; font-weight: 850; letter-spacing: 0.12em; text-transform: uppercase; }
+		h1 { max-width: 510px; margin: 0; color: #173d38; font-family: Georgia, "Times New Roman", serif; font-size: 2.65rem; font-weight: 400; line-height: 1.04; }
+		.welcome-copy > p:last-child { max-width: 440px; margin: 11px 0 0; color: #435b4c; font-size: 0.81rem; line-height: 1.55; }
+		.welcome-photo { position: relative; width: 132px; height: 92px; margin: 0 14px 0 0; overflow: hidden; border-radius: 4px; background: #a9c1a8; }
+		.welcome-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 45%; }
+		.welcome-photo figcaption { position: absolute; inset: auto 0 0; padding: 32px 15px 12px; background: linear-gradient(transparent, #193c39bf); color: white; font-size: 0.68rem; font-weight: 700; }
+		.intro-strip { display: flex; align-items: flex-start; gap: 10px; margin: 0; padding: 11px 13px; border-left: 4px solid var(--coral); background: #fff0e8; color: #644239; font-size: 0.72rem; line-height: 1.5; }
+		.intro-strip strong { color: #4e3028; }
+		.section { margin: 0; scroll-margin-top: 16px; }
+		.slide { min-width: 0; }
+		.section-head { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 8px; }
+		.section-title-group { display: flex; align-items: center; gap: 12px; min-width: 0; }
+		.section-visual { flex: 0 0 88px; width: 88px; height: 62px; margin: 0; overflow: hidden; border: 1px solid #d9e0d4; border-radius: 5px; background: #e7ecdc; }
+		.section-visual img { display: block; width: 100%; height: 100%; object-fit: cover; }
+		h2 { margin: 0; color: var(--ink); font-size: 1.15rem; letter-spacing: 0; }
+		.section-sub { margin: 5px 0 0; color: var(--muted); font-size: 0.73rem; line-height: 1.5; }
+		.section[data-step] { counter-increment: workflow-step; }
+		.section[data-step] .section-head h2 { display: flex; align-items: center; gap: 9px; }
+		.section[data-step] .section-head h2::before { display: grid; flex: 0 0 28px; width: 28px; height: 28px; place-items: center; border-radius: 50%; background: #e5edb2; color: #3b6147; content: counter(workflow-step, decimal-leading-zero); font-family: "Avenir Next", Avenir, "Trebuchet MS", sans-serif; font-size: 0.64rem; font-weight: 900; }
+		.next-step { display: inline-flex; align-items: center; gap: 8px; margin-top: 0; padding: 8px 10px; border: 1px solid #c5d2c3; border-radius: 4px; background: #f9faef; color: #315d4e; font-size: 0.68rem; font-weight: 800; text-decoration: none; }
+		.next-step:hover { border-color: #8eae95; background: #eff5e6; }
+		.job-prep-block { margin-top: 0; padding-top: 8px; border-top: 1px solid #e0e5dc; }
+		.section-count { color: var(--muted); font-size: 0.68rem; font-weight: 700; }
+		.overview-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin: 0; }
+		.stat { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 68px; padding: 12px 14px; border: 1px solid #d9e0d4; border-radius: 4px; background: #fffefa; }
+		.stat-label { color: #60716b; font-size: 0.68rem; }
+		.stat strong { color: #24574b; font-size: 1.18rem; }
+		.work-grid { display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr); gap: 13px; align-items: start; }
+		.panel { min-width: 0; padding: 17px; border: 1px solid #d9e0d4; border-radius: 5px; background: var(--paper); }
+		.panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
+		.panel-head h3 { margin: 0; color: #224d43; font-size: 0.9rem; }
+		.field { display: grid; gap: 5px; min-width: 0; }
+		.field label { color: #435953; font-size: 0.68rem; font-weight: 800; }
+		.field select, .field input, .field textarea { width: 100%; min-height: 38px; padding: 8px 10px; border: 1px solid #cbd6cc; border-radius: 4px; background: #fff; color: var(--ink); font-size: 0.74rem; }
+		.field textarea { min-height: 84px; resize: vertical; line-height: 1.45; }
+		.goal-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(105px, 0.55fr) auto; gap: 9px; align-items: end; }
+		.primary-button, .secondary-button { min-height: 38px; padding: 8px 11px; border: 0; border-radius: 4px; background: var(--forest); color: white; font-size: 0.69rem; font-weight: 800; cursor: pointer; }
+		.primary-button:hover { background: #2f6959; }
+		.secondary-button { border: 1px solid #b9c9bd; background: transparent; color: #2c5e51; }
+		.secondary-button:hover { background: #eff5e9; }
+		.skill-progress { display: flex; justify-content: space-between; gap: 12px; margin: 15px 0 6px; color: #5b6d67; font-size: 0.67rem; }
+		.progress-track { height: 7px; overflow: hidden; border-radius: 8px; background: #e6e9de; }
+		.progress-value { width: 0; height: 100%; border-radius: inherit; background: #4e9671; transition: width 180ms ease; }
+		.skill-list { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 12px; }
+		.skill-item { display: flex; align-items: flex-start; gap: 8px; min-width: 0; padding: 8px; border: 1px solid #e1e5dc; border-radius: 3px; background: #fcfcf7; }
+		.skill-item input, .check-item input { flex: 0 0 auto; width: 16px; height: 16px; margin: 1px 0 0; accent-color: #367760; }
+		.skill-item label { color: #425853; font-size: 0.68rem; line-height: 1.35; cursor: pointer; }
+		.skill-item small { display: block; margin-top: 3px; color: #78847e; font-size: 0.59rem; }
+		.roadmap { display: grid; gap: 8px; }
+		.phase { display: grid; grid-template-columns: 29px minmax(0, 1fr); gap: 10px; padding: 10px; border-top: 1px solid #e3e7dd; }
+		.phase-index { display: grid; width: 27px; height: 27px; place-items: center; border-radius: 50%; background: #e5edb2; color: #3b6147; font-size: 0.66rem; font-weight: 900; }
+		.phase h4 { margin: 1px 0 4px; color: #315449; font-size: 0.74rem; }
+		.phase p { margin: 0; color: #667570; font-size: 0.67rem; line-height: 1.45; }
+		.project-idea { margin-top: 11px; padding: 11px; border-radius: 4px; background: #edf3df; color: #4e6553; font-size: 0.69rem; line-height: 1.5; }
+		.project-idea strong { color: #315640; }
+		.job-grid { display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr); gap: 13px; align-items: start; }
+		.check-list { display: grid; gap: 7px; }
+		.check-item { display: flex; align-items: flex-start; gap: 9px; padding: 8px 9px; border-bottom: 1px solid #e4e8df; color: #465d55; font-size: 0.72rem; line-height: 1.4; }
+		.check-item:last-child { border-bottom: 0; }
+		.check-item span { flex: 1; }
+		.tracker-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(105px, 0.7fr) auto; gap: 8px; align-items: end; }
+		.application-list { display: grid; gap: 7px; margin-top: 12px; }
+		.application-empty { padding: 13px; border: 1px dashed #c9d4c8; border-radius: 4px; color: #74817b; font-size: 0.68rem; line-height: 1.45; text-align: center; }
+		.application-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 9px; border: 1px solid #e0e5dc; border-radius: 4px; background: #fff; }
+		.application-row strong { display: block; overflow: hidden; color: #315349; font-size: 0.71rem; text-overflow: ellipsis; white-space: nowrap; }
+		.application-row small { display: block; margin-top: 2px; color: #77827d; font-size: 0.61rem; }
+		.application-stage { padding: 5px 6px; border-radius: 3px; background: #eff3de; color: #596844; font-size: 0.6rem; font-weight: 800; }
+		.remove-application { display: grid; width: 27px; height: 27px; place-items: center; border: 1px solid #e1c4b8; border-radius: 3px; background: transparent; color: #9c523d; font-size: 0.7rem; cursor: pointer; }
+		.interview-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(220px, 0.9fr); gap: 13px; }
+		.question-card { min-height: 218px; padding: 20px; border-radius: 5px; background: #f1dfd0; }
+		.question-label { margin: 0 0 11px; color: #875b41; font-size: 0.64rem; font-weight: 850; letter-spacing: 0.1em; text-transform: uppercase; }
+		.question-text { margin: 0 0 17px; color: #3a4b41; font-family: Georgia, "Times New Roman", serif; font-size: 1.35rem; line-height: 1.25; }
+		.question-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+		.practice-count { align-self: center; color: #806b5b; font-size: 0.65rem; }
+		.reflection-list { display: grid; gap: 6px; margin-top: 10px; }
+		.reflection-list .check-item { padding: 7px 3px; font-size: 0.67rem; }
+		.exam-layout { display: grid; grid-template-columns: minmax(0, 0.83fr) minmax(0, 1.17fr); gap: 13px; align-items: start; }
+		.exam-form { display: grid; gap: 10px; }
+		.plan-output { min-height: 270px; padding: 16px; border-radius: 5px; background: #e3ecda; }
+		.plan-empty { display: grid; min-height: 235px; place-items: center; color: #6a7b6e; font-size: 0.72rem; line-height: 1.5; text-align: center; }
+		.plan-title { margin: 0 0 4px; color: #294d3f; font-size: 0.88rem; }
+		.plan-subtitle { margin: 0 0 12px; color: #67796b; font-size: 0.66rem; line-height: 1.45; }
+		.plan-days { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+		.plan-day { padding: 8px; border: 1px solid #cad9c5; border-radius: 3px; background: #f8faf2; }
+		.plan-day strong { display: block; margin-bottom: 3px; color: #3e6650; font-size: 0.64rem; }
+		.plan-day span { display: block; color: #66776b; font-size: 0.62rem; line-height: 1.4; }
+		.plan-footnote { margin: 11px 0 0; color: #6d7b70; font-size: 0.61rem; line-height: 1.45; }
+		.resume-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 13px; align-items: start; }
+		.resume-form { display: grid; gap: 10px; }
+		.resume-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+		.resume-fields .full { grid-column: 1 / -1; }
+		.resume-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+		.resume-preview { min-height: 300px; padding: 21px; border: 1px solid #d9e0d4; border-radius: 5px; background: #fffefa; }
+		.resume-preview[hidden] { display: none; }
+		.resume-empty { display: grid; min-height: 255px; place-items: center; color: #74817b; font-size: 0.73rem; line-height: 1.5; text-align: center; }
+		.resume-document h3 { margin: 0 0 4px; color: #214e43; font-family: Georgia, "Times New Roman", serif; font-size: 1.45rem; font-weight: 400; }
+		.resume-contact { margin: 0 0 15px; color: #6a7973; font-size: 0.65rem; line-height: 1.5; }
+		.resume-block { padding: 10px 0; border-top: 1px solid #e3e7dd; }
+		.resume-block h4 { margin: 0 0 5px; color: #34624f; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; }
+		.resume-block p { margin: 0; color: #4c6059; font-size: 0.72rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+		.aptitude-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(210px, 0.68fr); gap: 13px; align-items: stretch; }
+		.aptitude-card { padding: 19px; border-radius: 5px; background: #e8edc6; }
+		.aptitude-category { margin: 0 0 8px; color: #61704b; font-size: 0.64rem; font-weight: 850; letter-spacing: 0.09em; text-transform: uppercase; }
+		.aptitude-question { margin: 0 0 15px; color: #284c3f; font-family: Georgia, "Times New Roman", serif; font-size: 1.2rem; line-height: 1.35; }
+		.aptitude-options { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+		.aptitude-option { display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 8px; border: 1px solid #cbd6b1; border-radius: 3px; background: #f9faef; color: #42584a; font-size: 0.7rem; cursor: pointer; }
+		.aptitude-option input { margin: 0; accent-color: #367760; }
+		.aptitude-option:has(input:checked) { border-color: #54856a; background: #f1f5dc; }
+		.aptitude-feedback { min-height: 2.8em; margin: 9px 0; color: #536b54; font-size: 0.68rem; line-height: 1.45; }
+		.aptitude-feedback.correct { color: #28714e; }
+		.aptitude-feedback.incorrect { color: #a44c38; }
+		.aptitude-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+		.aptitude-score { color: #657260; font-size: 0.66rem; }
+		.quiz-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 0.7fr); gap: 13px; align-items: stretch; }
+		.daily-card { padding: 18px; border-radius: 5px; background: #f1dfd0; }
+		.daily-date { margin: 0 0 8px; color: #8a6048; font-size: 0.64rem; font-weight: 850; letter-spacing: 0.1em; text-transform: uppercase; }
+		.daily-question { margin: 0 0 14px; color: #3e4e41; font-family: Georgia, "Times New Roman", serif; font-size: 1.12rem; line-height: 1.35; }
+		.daily-options { display: grid; gap: 7px; }
+		.daily-option { display: flex; align-items: flex-start; gap: 8px; padding: 8px; border: 1px solid #e0caba; border-radius: 3px; background: #fffaf5; color: #584f43; font-size: 0.69rem; line-height: 1.4; cursor: pointer; }
+		.daily-option input { flex: 0 0 auto; margin: 1px 0 0; accent-color: #367760; }
+		.daily-feedback { min-height: 2.8em; margin: 9px 0; color: #655746; font-size: 0.68rem; line-height: 1.45; }
+		.daily-feedback.correct { color: #28714e; }
+		.daily-feedback.incorrect { color: #a44c38; }
+		.quiz-streak { display: flex; flex-direction: column; justify-content: center; min-height: 200px; padding: 18px; border-radius: 5px; background: #dce96d; }
+		.quiz-streak strong { display: block; margin-bottom: 7px; color: #294d3f; font-family: Georgia, "Times New Roman", serif; font-size: 1.35rem; font-weight: 400; }
+		.quiz-streak p { margin: 0; color: #546346; font-size: 0.72rem; line-height: 1.5; }
+		.conclusion { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin: 0; padding: 22px 24px; border-radius: 5px; background: var(--forest); color: #eef2e8; }
+		.conclusion p { max-width: 410px; margin: 0; color: #c9d7c8; font-size: 0.73rem; line-height: 1.5; }
+		.conclusion h2 { color: var(--lime); font-family: Georgia, "Times New Roman", serif; font-size: 1.6rem; font-weight: 400; }
+		.feedback { min-height: 1.2em; margin: 8px 0 0; color: #3e775f; font-size: 0.66rem; }
+		.feedback.error { color: #a34a37; }
+		.page-footer { display: flex; justify-content: space-between; gap: 16px; margin-top: 0; padding-top: 12px; border-top: 1px solid #d6ddd2; color: #74817b; font-size: 0.63rem; line-height: 1.5; }
+		@media (max-width: 1050px) {
+			.app { grid-template-columns: 205px minmax(0, 1fr); }
+			.work-grid, .job-grid, .exam-layout, .resume-grid, .aptitude-layout, .quiz-layout { grid-template-columns: 1fr; }
+			.goal-form { grid-template-columns: minmax(0, 1fr) minmax(105px, 0.55fr) auto; }
+			.overview-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+			.overview-stats .stat:first-child { grid-column: 1 / -1; }
+		}
+		@media (max-width: 760px) {
+			.app { grid-template-columns: minmax(0, 1fr); }
+			.sidebar { position: static; min-height: 0; height: auto; padding: 11px 13px 8px; }
+			.brand { padding: 0 2px 10px; }
+			.brand-mark { width: 31px; height: 31px; }
+			.nav-caption, .sidebar-note { display: none; }
+			.navigation { display: flex; width: 100%; min-width: 0; gap: 4px; overflow-x: auto; padding: 2px 0 5px; }
+			.nav-link { flex: 0 0 auto; min-height: 35px; padding: 7px 9px; font-size: 0.66rem; }
+			.nav-glyph { width: 20px; height: 20px; }
+			.main { padding: 17px 15px 20px; }
+			.welcome { grid-template-columns: minmax(0, 1fr) auto; }
+			.welcome-copy { padding: 16px; }
+			.welcome-photo { width: 104px; height: 74px; margin-right: 12px; }
+			.interview-layout { grid-template-columns: minmax(0, 1fr) minmax(190px, 0.8fr); }
+		}
+		@media (max-width: 540px) {
+			.topbar { align-items: flex-start; flex-direction: column; gap: 8px; }
+			.welcome { grid-template-columns: minmax(0, 1fr) auto; }
+			.welcome-copy { padding: 15px; }
+			h1 { font-size: 1.8rem; }
+			.welcome-photo { width: 72px; height: 62px; margin-right: 10px; }
+			.section-head { align-items: flex-start; flex-direction: column; gap: 6px; }
+			.section-title-group { width: 100%; justify-content: space-between; gap: 8px; }
+			.section-title-group > div { min-width: 0; }
+			.section-visual { flex-basis: 64px; width: 64px; height: 48px; }
+			.overview-stats { grid-template-columns: 1fr; }
+			.stat { min-height: 55px; }
+			.goal-form, .tracker-form { grid-template-columns: 1fr; }
+			.goal-form .primary-button, .tracker-form .primary-button { width: 100%; }
+			.skill-list { grid-template-columns: 1fr; }
+			.interview-layout { grid-template-columns: 1fr; }
+			.resume-fields { grid-template-columns: 1fr; }
+			.resume-fields .full { grid-column: auto; }
+			.question-card { min-height: 190px; padding: 16px; }
+			.aptitude-options { grid-template-columns: 1fr; }
+			.conclusion { align-items: flex-start; flex-direction: column; gap: 9px; padding: 18px; }
+			.plan-days { grid-template-columns: 1fr; }
+			.page-footer { flex-direction: column; gap: 5px; }
+		}
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+		}
+	</style>
+</head>
+<body>
+	<div class="app">
+		<aside class="sidebar">
+			<a class="brand" href="#overview" aria-label="CareerPath home">
+				<span class="brand-mark" aria-hidden="true">CP</span>
+				<span><span class="brand-name">CareerPath</span><span class="brand-sub">Student success studio</span></span>
+			</a>
+			<p class="nav-caption">Your next steps</p>
+			<nav class="navigation" aria-label="Career planning sections">
+				<a class="nav-link" href="#overview" aria-current="location"><span class="nav-glyph" aria-hidden="true">OV</span>Overview</a>
+				<a class="nav-link" href="#career-path"><span class="nav-glyph" aria-hidden="true">CP</span>Career guidance</a>
+				<a class="nav-link" href="#resume-builder"><span class="nav-glyph" aria-hidden="true">CV</span>Resume builder</a>
+				<a class="nav-link" href="#interview-practice"><span class="nav-glyph" aria-hidden="true">Q</span>Interview preparation</a>
+				<a class="nav-link" href="#aptitude-practice"><span class="nav-glyph" aria-hidden="true">AP</span>Aptitude practice</a>
+				<a class="nav-link" href="#skill-development"><span class="nav-glyph" aria-hidden="true">SK</span>Skill development</a>
+				<a class="nav-link" href="#daily-quiz"><span class="nav-glyph" aria-hidden="true">DQ</span>Daily quiz</a>
+				<a class="nav-link" href="#exam-planner"><span class="nav-glyph" aria-hidden="true">SP</span>Study planner</a>
+			</nav>
+			<div class="sidebar-note"><strong>A plan you can make yours</strong>Choose a direction, build useful skills, and keep moving one small step at a time.</div>
+		</aside>
+		<main class="main">
+			<section class="slide" id="overview" data-slide-title="Overview" aria-labelledby="page-title">
+			<header class="topbar">
+				<p class="breadcrumb">Student toolkit <span aria-hidden="true">/</span> Career planning</p>
+				<div class="local-status"><span class="status-dot" aria-hidden="true"></span>Progress saves in this browser</div>
+			</header>
+			<section class="welcome" aria-labelledby="page-title">
+				<div class="welcome-copy">
+					<p class="eyebrow">Career planning for college students</p>
+					<h1 id="page-title">Your next step can be a small one.</h1>
+					<p>Make job preparation less overwhelming with a career path, practical skill goals, interview practice, and a study plan you can actually follow.</p>
+				</div>
+				<figure class="welcome-photo">
+					<img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=85" alt="College students collaborating around a table" fetchpriority="high">
+					<figcaption>Build skills together. Take the next step with confidence.</figcaption>
+				</figure>
+			</section>
+			<p class="intro-strip"><span aria-hidden="true">✦</span><span><strong>Start where you are.</strong> Follow the numbered sections from 01 to 07. Each step builds on the last, and you can revisit any section whenever you need.</span></p>
+			<section class="overview-stats" aria-label="Your career progress overview">
+				<div class="stat"><span class="stat-label">Selected career direction</span><strong id="stat-career">Software developer</strong></div>
+				<div class="stat"><span class="stat-label">Skills checked off</span><strong id="stat-skills">0 / 6</strong></div>
+				<div class="stat"><span class="stat-label">Applications tracked</span><strong id="stat-applications">0</strong></div>
+			</section>
+			</section>
+			<section class="section slide" id="career-path" data-step data-slide-title="Career guidance" aria-labelledby="career-heading">
+				<div class="section-head"><div class="section-title-group"><div><h2 id="career-heading">Career guidance: choose a direction</h2><p class="section-sub">Select a career area and turn broad goals into practical skills and projects.</p></div><figure class="section-visual"><img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&amp;fit=crop&amp;w=280&amp;q=75" alt="Students planning a career project" loading="lazy" decoding="async"></figure></div><span class="section-count">Editable starter map</span></div>
+				<div class="work-grid">
+					<div class="panel">
+						<div class="panel-head"><h3>Your career starting point</h3></div>
+						<form class="goal-form" id="goal-form">
+							<div class="field"><label for="career-select">Career direction</label><select id="career-select" name="career"><option value="software">Software developer</option><option value="data">Data analyst</option><option value="design">UX / UI designer</option><option value="marketing">Digital marketer</option></select></div>
+							<div class="field"><label for="weekly-hours">Hours per week</label><select id="weekly-hours" name="hours"><option value="2">2 hours</option><option value="4" selected>4 hours</option><option value="6">6 hours</option><option value="8">8 hours</option><option value="10">10 hours</option></select></div>
+							<button class="primary-button" type="submit">Update path</button>
+						</form>
+						<p class="feedback" id="goal-feedback" aria-live="polite"></p>
+					</div>
+					<div class="panel">
+						<div class="panel-head"><h3>Your suggested roadmap</h3><span class="section-count" id="roadmap-hours">4 hours / week</span></div>
+						<div class="roadmap">
+							<div class="phase"><span class="phase-index">01</span><div><h4>Get the foundations</h4><p>Build familiarity with core concepts and choose one skill to practice this week.</p></div></div>
+							<div class="phase"><span class="phase-index">02</span><div><h4>Make something real</h4><p>Apply your learning to a small project you can explain and improve.</p></div></div>
+							<div class="phase"><span class="phase-index">03</span><div><h4>Show your work</h4><p>Collect evidence of your skills, ask for feedback, and practice describing your decisions.</p></div></div>
+							<div class="phase"><span class="phase-index">04</span><div><h4>Prepare and apply</h4><p>Tailor your materials, rehearse examples, and keep track of applications and follow-ups.</p></div></div>
+						</div>
+						<div class="project-idea" id="project-idea"><strong>Try a small project:</strong> Build a simple personal portfolio site with three projects and a short explanation of what you learned.</div>
+					</div>
+				</div>
+				<a class="next-step" href="#resume-builder">Continue to Resume Builder <span aria-hidden="true">&rarr;</span></a>
+			</section>
+			<section class="section slide" id="resume-builder" data-step data-slide-title="Resume builder" aria-labelledby="resume-heading">
+				<div class="section-head"><div class="section-title-group"><div><h2 id="resume-heading">Resume builder</h2><p class="section-sub">Draft a clear student resume from your education, skills, and project experience.</p></div><figure class="section-visual"><img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&amp;fit=crop&amp;w=280&amp;q=75" alt="A resume draft ready for editing" loading="lazy" decoding="async"></figure></div><span class="section-count">Private · saved on this browser</span></div>
+				<div class="resume-grid">
+					<div class="panel">
+						<div class="panel-head"><h3>Your resume details</h3></div>
+						<form class="resume-form" id="resume-form">
+							<div class="resume-fields">
+								<div class="field"><label for="resume-name">Name</label><input id="resume-name" name="name" placeholder="Your name" maxlength="80" required></div>
+								<div class="field"><label for="resume-role">Target role</label><input id="resume-role" name="role" placeholder="Role you are exploring" maxlength="80" required></div>
+								<div class="field full"><label for="resume-contact">Contact details</label><input id="resume-contact" name="contact" placeholder="Email · portfolio · professional profile" maxlength="150"></div>
+								<div class="field full"><label for="resume-education">Education</label><textarea id="resume-education" name="education" placeholder="College, program, expected graduation" required></textarea></div>
+								<div class="field full"><label for="resume-skills">Skills</label><textarea id="resume-skills" name="skills" placeholder="Add skills separated by commas" required></textarea></div>
+								<div class="field full"><label for="resume-projects">Projects or experience</label><textarea id="resume-projects" name="projects" placeholder="What did you do? What tools did you use? What changed or did you learn?" required></textarea></div>
+							</div>
+							<div class="resume-actions"><button class="primary-button" type="submit">Build resume preview</button><button class="secondary-button" id="download-resume" type="button" disabled>Download text draft</button></div>
+							<p class="section-sub">Use accurate details and review your draft before sharing. Information stays in this browser.</p>
+						</form>
+					</div>
+					<div class="resume-preview" id="resume-preview" aria-live="polite"><div class="resume-empty">Your resume preview will appear here.<br>Start with your target role and strongest evidence.</div></div>
+				</div>
+				<div class="job-prep-block" id="job-prep">
+				<div class="section-head"><div class="section-title-group"><div><h2 id="job-heading">Get ready for the job search</h2><p class="section-sub">Prepare the essentials, then keep your applications from disappearing into a spreadsheet void.</p></div><figure class="section-visual"><img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&amp;fit=crop&amp;w=280&amp;q=75" alt="Laptop ready for job-search planning" loading="lazy" decoding="async"></figure></div><span class="section-count">Job toolkit</span></div>
+				<div class="job-grid">
+					<div class="panel">
+						<div class="panel-head"><h3>Job-readiness checklist</h3><span class="section-count" id="job-progress">0 / 5</span></div>
+						<div class="check-list" id="job-checklist">
+							<label class="check-item"><input type="checkbox" data-job-check="resume"><span>Draft a clear, one-page resume</span></label>
+							<label class="check-item"><input type="checkbox" data-job-check="portfolio"><span>Collect project work or examples</span></label>
+							<label class="check-item"><input type="checkbox" data-job-check="profile"><span>Update your professional profile</span></label>
+							<label class="check-item"><input type="checkbox" data-job-check="references"><span>Ask potential references for permission</span></label>
+							<label class="check-item"><input type="checkbox" data-job-check="practice"><span>Practice a short introduction about yourself</span></label>
+						</div>
+						<p class="section-sub">A campus career center, mentor, or trusted peer can give useful feedback.</p>
+					</div>
+					<div class="panel">
+						<div class="panel-head"><h3>Application tracker</h3><span class="section-count">Saved on this device</span></div>
+						<form class="tracker-form" id="application-form">
+							<div class="field"><label for="company-name">Organization</label><input id="company-name" name="company" placeholder="Company or team" required maxlength="60"></div>
+							<div class="field"><label for="job-title">Role</label><input id="job-title" name="role" placeholder="Role title" required maxlength="60"></div>
+							<div class="field"><label for="application-stage">Status</label><select id="application-stage"><option>Interested</option><option>Applied</option><option>Interviewing</option><option>Follow up</option><option>Closed</option></select></div>
+							<button class="primary-button" type="submit">Add</button>
+						</form>
+						<div class="application-list" id="application-list"><div class="application-empty" id="application-empty">No roles tracked yet. Add one when you find a position worth exploring.</div></div>
+					</div>
+				</div>
+				<a class="next-step" href="#interview-practice">Continue to Interview Preparation <span aria-hidden="true">&rarr;</span></a>
+			</section>
+			<section class="section slide" id="interview-practice" data-step data-slide-title="Interview preparation" aria-labelledby="interview-heading">
+				<div class="section-head"><div class="section-title-group"><div><h2 id="interview-heading">Interview preparation</h2><p class="section-sub">Work through common interview prompts and reflect on your own answer. No scoring bot, just deliberate practice.</p></div><figure class="section-visual"><img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&amp;fit=crop&amp;w=280&amp;q=75" alt="Colleagues practicing interview communication" loading="lazy" decoding="async"></figure></div><span class="section-count" id="practice-count">0 practiced</span></div>
+				<div class="interview-layout">
+					<div class="question-card">
+						<p class="question-label" id="question-category">Behavioral · Practice prompt</p>
+						<p class="question-text" id="question-text">Tell me about a time you learned something challenging. How did you approach it?</p>
+						<div class="question-actions"><button class="secondary-button" id="next-question" type="button">Choose another question</button><button class="primary-button" id="mark-practiced" type="button">Mark practiced</button><span class="practice-count" id="practice-feedback" aria-live="polite"></span></div>
+					</div>
+					<div class="panel">
+						<div class="panel-head"><h3>Quick self-review</h3></div>
+						<div class="reflection-list">
+							<label class="check-item"><input type="checkbox" data-reflection="context"><span>I gave enough context to understand the situation</span></label>
+							<label class="check-item"><input type="checkbox" data-reflection="action"><span>I explained what I personally did</span></label>
+							<label class="check-item"><input type="checkbox" data-reflection="result"><span>I shared the result or what I learned</span></label>
+							<label class="check-item"><input type="checkbox" data-reflection="clear"><span>I kept the answer focused and clear</span></label>
+						</div>
+					</div>
+					<a class="next-step" href="#aptitude-practice">Continue to Aptitude Practice <span aria-hidden="true">&rarr;</span></a>
+				</div>
+			</section>
+			<section class="section slide" id="aptitude-practice" data-step data-slide-title="Aptitude practice" aria-labelledby="aptitude-heading">
+				<div class="section-head"><div class="section-title-group"><div><h2 id="aptitude-heading">Aptitude practice</h2><p class="section-sub">Try a short numerical, reasoning, or verbal question. Read the explanation, then take another.</p></div><figure class="section-visual"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&amp;fit=crop&amp;w=280&amp;q=75" alt="A student working on a practice exercise" loading="lazy" decoding="async"></figure></div><span class="section-count" id="aptitude-progress">0 correct · 0 answered</span></div>
+				<div class="aptitude-layout">
+					<div class="aptitude-card">
+						<p class="aptitude-category" id="aptitude-category">Numerical reasoning</p>
+						<p class="aptitude-question" id="aptitude-question"></p>
+						<div class="aptitude-options" id="aptitude-options"></div>
+						<p class="aptitude-feedback" id="aptitude-feedback" aria-live="polite"></p>
+						<div class="aptitude-actions"><button class="primary-button" id="check-aptitude" type="button">Check answer</button><button class="secondary-button" id="next-aptitude" type="button" disabled>Next question</button></div>
+					</div>
+					<div class="panel"><div class="panel-head"><h3>Practice that sticks</h3></div><p class="section-sub">Try the question before checking. Focus on the reasoning, not just the answer. These sample questions are for practice and do not represent any specific exam.</p><div class="project-idea"><strong>Small habit:</strong> Note the question type you found difficult, then revisit it during your next study session.</div></div>
+				</div>
+				<a class="next-step" href="#skill-development">Continue to Skill Development <span aria-hidden="true">&rarr;</span></a>
+			</section>
+			<section class="section slide" id="skill-development" data-step data-slide-title="Skill development" aria-labelledby="skills-heading">
+				<div class="section-head"><div class="section-title-group"><div><h2 id="skills-heading">Skill development</h2><p class="section-sub">Practice the skills for your chosen direction and track progress as you build experience.</p></div><figure class="section-visual"><img src="https://images.unsplash.com/photo-1456324504439-367cee3b3c32?auto=format&amp;fit=crop&amp;w=280&amp;q=75" alt="Learning materials prepared for skill development" loading="lazy" decoding="async"></figure></div><span class="section-count">Mark skills after practice</span></div>
+				<div class="panel">
+					<div class="skill-progress"><span>Career skill progress</span><span id="skill-progress-text">0 of 6 complete</span></div>
+					<div class="progress-track" role="progressbar" aria-label="Career skill progress" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0"><div class="progress-value" id="progress-value"></div></div>
+					<div class="skill-list" id="skill-list"></div>
+				</div>
+				<a class="next-step" href="#daily-quiz">Continue to Daily Quiz <span aria-hidden="true">&rarr;</span></a>
+			</section>
+			<section class="section slide" id="daily-quiz" data-step data-slide-title="Daily quiz" aria-labelledby="daily-heading">
+				<div class="section-head"><div class="section-title-group"><div><h2 id="daily-heading">Daily quiz</h2><p class="section-sub">One short career-readiness question each day. A fresh question appears tomorrow.</p></div><figure class="section-visual"><img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&amp;fit=crop&amp;w=280&amp;q=75" alt="A student reviewing quiz notes" loading="lazy" decoding="async"></figure></div><span class="section-count" id="daily-date-label">Today's question</span></div>
+				<div class="quiz-layout">
+					<div class="daily-card">
+						<p class="daily-date" id="daily-category">Career basics · today's quiz</p>
+						<p class="daily-question" id="daily-question"></p>
+						<form id="daily-quiz-form"><div class="daily-options" id="daily-options"></div><p class="daily-feedback" id="daily-feedback" aria-live="polite"></p><button class="primary-button" id="submit-daily-quiz" type="submit">Check today's answer</button></form>
+					</div>
+					<div class="quiz-streak"><strong>A little progress, every day.</strong><p>Use the explanation to guide your next step. This daily quiz is a practice prompt, not an assessment of your career potential.</p></div>
+				</div>
+				<a class="next-step" href="#exam-planner">Continue to Study Planner <span aria-hidden="true">&rarr;</span></a>
+			</section>
+			<section class="section slide" id="exam-planner" data-step data-slide-title="Study planner" aria-labelledby="exam-heading">
+				<div class="section-head"><div class="section-title-group"><div><h2 id="exam-heading">Study planner</h2><p class="section-sub">Enter your exam date and topics to get a simple weekly starting schedule.</p></div><figure class="section-visual"><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&amp;fit=crop&amp;w=280&amp;q=75" alt="Students planning study goals together" loading="lazy" decoding="async"></figure></div><span class="section-count">You choose the syllabus</span></div>
+				<div class="exam-layout">
+					<div class="panel">
+						<div class="panel-head"><h3>Set your exam goal</h3></div>
+						<form class="exam-form" id="exam-form">
+							<div class="field"><label for="exam-name">Exam or test name</label><input id="exam-name" name="examName" placeholder="e.g. Entrance exam" maxlength="70" required></div>
+							<div class="field"><label for="exam-date">Exam date</label><input id="exam-date" name="examDate" type="date" required></div>
+							<div class="field"><label for="exam-topics">Topics from your official syllabus</label><textarea id="exam-topics" name="topics" placeholder="Add one topic per line, or separate with commas" required></textarea></div>
+							<div class="field"><label for="exam-hours">Study hours available each week</label><select id="exam-hours" name="examHours"><option value="2">2 hours</option><option value="4" selected>4 hours</option><option value="6">6 hours</option><option value="8">8 hours</option><option value="10">10 hours</option><option value="12">12 hours</option></select></div>
+							<button class="primary-button" type="submit">Build weekly plan</button>
+						</form>
+						<p class="feedback" id="exam-feedback" aria-live="polite"></p>
+					</div>
+					<div class="plan-output" id="plan-output" aria-live="polite"><div class="plan-empty">Your weekly study plan will appear here.<br>Start with the topics and date from your exam's official source.</div></div>
+				</div>
+			</section>
+			<section class="slide" id="conclusion-slide" data-slide-title="Conclusion" aria-label="CareerPath conclusion">
+				<div class="conclusion"><div><p class="eyebrow">Keep learning. Keep moving.</p><h2>Learn Today and Succeed Tomorrow.</h2></div><p>Build useful skills, practice with purpose, and keep taking the next step toward a future you choose.</p></div>
+				<footer class="page-footer"><span>CareerPath · A student planning tool, not a job or exam outcome guarantee.</span><span>Your selections and progress are stored locally in this browser.</span></footer>
+			</section>
+		</main>
+	</div>
+	<script>
+		const storageKey = "careerpath.student-planner.v1";
+		const careerOptions = {
+			software: {
+				name: "Software developer",
+				skills: ["Programming fundamentals", "Git and collaboration", "Data structures basics", "Testing and debugging", "Web or app development", "Technical communication"],
+				project: "Build a small app that solves a problem you understand. Add a README, tests, and a short note about your design decisions."
+			},
+			data: {
+				name: "Data analyst",
+				skills: ["Spreadsheets and data cleaning", "SQL fundamentals", "Data visualization", "Statistics basics", "A portfolio analysis", "Communicating findings"],
+				project: "Choose a public dataset, write down one question, analyze it, and present a chart with a short explanation of the limits."
+			},
+			design: {
+				name: "UX / UI designer",
+				skills: ["User research basics", "Problem framing", "Wireframing", "Interaction design", "Accessibility fundamentals", "Portfolio case study"],
+				project: "Improve one small task in an app you use. Document the user problem, a sketch, feedback, and what you changed."
+			},
+			marketing: {
+				name: "Digital marketer",
+				skills: ["Audience research", "Clear copywriting", "Content planning", "Analytics basics", "Campaign measurement", "Portfolio examples"],
+				project: "Plan a small campaign for a campus group. Define the audience, message, channel, and one way to measure results."
+			}
+		};
+		const questions = [
+			{ category: "Behavioral", text: "Tell me about a time you learned something challenging. How did you approach it?" },
+			{ category: "Behavioral", text: "Describe a group project where you had to work through a disagreement." },
+			{ category: "Behavioral", text: "Tell me about a mistake you made and what you changed afterward." },
+			{ category: "Strengths", text: "Which project best shows how you think, and what was your contribution?" },
+			{ category: "Motivation", text: "What interests you about this role, beyond the job title?" },
+			{ category: "Problem solving", text: "How would you get started on a task when the instructions are unclear?" },
+			{ category: "Growth", text: "What is one skill you are actively improving, and how are you practicing it?" }
+		];
+		let savedState = {};
+		try { savedState = JSON.parse(localStorage.getItem(storageKey) || "{}"); } catch { savedState = {}; }
+		const state = {
+			career: savedState.career in careerOptions ? savedState.career : "software",
+			hours: ["2", "4", "6", "8", "10"].includes(String(savedState.hours)) ? String(savedState.hours) : "4",
+			skills: savedState.skills && typeof savedState.skills === "object" ? savedState.skills : {},
+			jobChecks: savedState.jobChecks && typeof savedState.jobChecks === "object" ? savedState.jobChecks : {},
+			applications: Array.isArray(savedState.applications) ? savedState.applications : [],
+			practiceCount: Number.isFinite(savedState.practiceCount) ? savedState.practiceCount : 0,
+			questionIndex: Number.isInteger(savedState.questionIndex) ? savedState.questionIndex : 0,
+			reflection: savedState.reflection && typeof savedState.reflection === "object" ? savedState.reflection : {},
+			exam: savedState.exam && typeof savedState.exam === "object" ? savedState.exam : null,
+			resume: savedState.resume && typeof savedState.resume === "object" ? savedState.resume : null,
+			aptitudeIndex: Number.isInteger(savedState.aptitudeIndex) ? savedState.aptitudeIndex : 0,
+			aptitudeChoice: Number.isInteger(savedState.aptitudeChoice) ? savedState.aptitudeChoice : null,
+			aptitudeAnswered: Boolean(savedState.aptitudeAnswered),
+			aptitudeScore: Number.isInteger(savedState.aptitudeScore) ? savedState.aptitudeScore : 0,
+			aptitudeTotal: Number.isInteger(savedState.aptitudeTotal) ? savedState.aptitudeTotal : 0,
+			dailyQuiz: savedState.dailyQuiz && typeof savedState.dailyQuiz === "object" ? savedState.dailyQuiz : null
+		};
+		function saveState() {
+			try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch { /* Storage may be unavailable in private browsing. */ }
+		}
+		function make(tag, className, text) {
+			const element = document.createElement(tag);
+			if (className) element.className = className;
+			if (text !== undefined) element.textContent = text;
+			return element;
+		}
+		function normalizeWhitespace(value) {
+			return String(value ?? "").split(/\r?\n/).map((line) => line.replace(/[ \t]+/g, " ").trim()).join("\n").trim();
+		}
+		const careerSelect = document.querySelector("#career-select");
+		const weeklyHours = document.querySelector("#weekly-hours");
+		const skillList = document.querySelector("#skill-list");
+		const progressBar = document.querySelector(".progress-track");
+		function renderSkills() {
+			const career = careerOptions[state.career];
+			careerSelect.value = state.career;
+			weeklyHours.value = state.hours;
+			document.querySelector("#stat-career").textContent = career.name;
+			document.querySelector("#roadmap-hours").textContent = `${state.hours} hours / week`;
+			document.querySelector("#project-idea").innerHTML = "";
+			const projectLabel = make("strong", "", "Try a small project: ");
+			document.querySelector("#project-idea").append(projectLabel, document.createTextNode(career.project));
+			skillList.replaceChildren();
+			career.skills.forEach((skill, index) => {
+				const id = `skill-${state.career}-${index}`;
+				const wrapper = make("div", "skill-item");
+				const checkbox = document.createElement("input");
+				checkbox.type = "checkbox";
+				checkbox.id = id;
+				checkbox.checked = Boolean(state.skills[id]);
+				const label = document.createElement("label");
+				label.htmlFor = id;
+				label.append(document.createTextNode(skill));
+				const note = make("small", "", "Mark when you have practiced it");
+				label.append(note);
+				checkbox.addEventListener("change", () => {
+					state.skills[id] = checkbox.checked;
+					saveState();
+					updateProgress();
+				});
+				wrapper.append(checkbox, label);
+				skillList.append(wrapper);
+			});
+			updateProgress();
+		}
+		function updateProgress() {
+			const total = careerOptions[state.career].skills.length;
+			const complete = careerOptions[state.career].skills.reduce((count, _, index) => count + (state.skills[`skill-${state.career}-${index}`] ? 1 : 0), 0);
+			const percent = total ? (complete / total) * 100 : 0;
+			document.querySelector("#skill-progress-text").textContent = `${complete} of ${total} complete`;
+			document.querySelector("#stat-skills").textContent = `${complete} / ${total}`;
+			document.querySelector("#progress-value").style.width = `${percent}%`;
+			progressBar.setAttribute("aria-valuemax", String(total));
+			progressBar.setAttribute("aria-valuenow", String(complete));
+		}
+		document.querySelector("#goal-form").addEventListener("submit", (event) => {
+			event.preventDefault();
+			state.career = careerSelect.value;
+			state.hours = weeklyHours.value;
+			saveState();
+			renderSkills();
+			document.querySelector("#goal-feedback").textContent = "Your skill map and project idea are updated.";
+		});
+		careerSelect.addEventListener("change", () => {
+			state.career = careerSelect.value;
+			renderSkills();
+		});
+		weeklyHours.addEventListener("change", () => {
+			state.hours = weeklyHours.value;
+			document.querySelector("#roadmap-hours").textContent = `${state.hours} hours / week`;
+			saveState();
+		});
+		renderSkills();
+
+		const resumeForm = document.querySelector("#resume-form");
+		const resumePreview = document.querySelector("#resume-preview");
+		const downloadResume = document.querySelector("#download-resume");
+		function renderResume(resume) {
+			if (!resume) return;
+			for (const [field, value] of Object.entries(resume)) {
+				const input = resumeForm.elements.namedItem(field);
+				if (input) input.value = normalizeWhitespace(value);
+			}
+			resumePreview.replaceChildren();
+			const documentView = make("article", "resume-document");
+			const normalizedResume = Object.fromEntries(Object.entries(resume).map(([field, value]) => [field, normalizeWhitespace(value)]));
+			documentView.append(make("h3", "", normalizedResume.name));
+			documentView.append(make("p", "resume-contact", `${normalizedResume.role}${normalizedResume.contact ? ` · ${normalizedResume.contact}` : ""}`));
+			[["Education", normalizedResume.education], ["Skills", normalizedResume.skills], ["Projects and experience", normalizedResume.projects]].forEach(([heading, content]) => {
+				const block = make("section", "resume-block");
+				block.append(make("h4", "", heading), make("p", "", content));
+				documentView.append(block);
+			});
+			resumePreview.append(documentView);
+			resumePreview.hidden = false;
+			downloadResume.disabled = false;
+		}
+		if (state.resume) renderResume(state.resume);
+		resumeForm.addEventListener("submit", (event) => {
+			event.preventDefault();
+			const formData = new FormData(resumeForm);
+			state.resume = Object.fromEntries(["name", "role", "contact", "education", "skills", "projects"].map((field) => [field, normalizeWhitespace(formData.get(field))]));
+			saveState();
+			renderResume(state.resume);
+		});
+		downloadResume.addEventListener("click", () => {
+			if (!state.resume) return;
+			const resumeText = `${state.resume.name}\n${state.resume.role}\n${state.resume.contact}\n\nEDUCATION\n${state.resume.education}\n\nSKILLS\n${state.resume.skills}\n\nPROJECTS AND EXPERIENCE\n${state.resume.projects}\n`;
+			const file = new Blob([resumeText], { type: "text/plain;charset=utf-8" });
+			const downloadUrl = URL.createObjectURL(file);
+			const link = document.createElement("a");
+			link.href = downloadUrl;
+			link.download = "careerpath-resume-draft.txt";
+			link.click();
+			URL.revokeObjectURL(downloadUrl);
+		});
+
+		const jobCheckboxes = document.querySelectorAll("[data-job-check]");
+		function updateJobProgress() {
+			let checked = 0;
+			jobCheckboxes.forEach((checkbox) => {
+				checkbox.checked = Boolean(state.jobChecks[checkbox.dataset.jobCheck]);
+				if (checkbox.checked) checked += 1;
+			});
+			document.querySelector("#job-progress").textContent = `${checked} / ${jobCheckboxes.length}`;
+		}
+		jobCheckboxes.forEach((checkbox) => checkbox.addEventListener("change", () => {
+			state.jobChecks[checkbox.dataset.jobCheck] = checkbox.checked;
+			saveState();
+			updateJobProgress();
+		}));
+		updateJobProgress();
+
+		const applicationList = document.querySelector("#application-list");
+		function renderApplications() {
+			applicationList.replaceChildren();
+			if (!state.applications.length) {
+				applicationList.append(make("div", "application-empty", "No roles tracked yet. Add one when you find a position worth exploring."));
+			} else {
+				state.applications.forEach((application) => {
+					const row = make("div", "application-row");
+					const details = make("div");
+					details.append(make("strong", "", application.company), make("small", "", application.role));
+					const stage = make("span", "application-stage", application.stage);
+					const remove = make("button", "remove-application", "Remove");
+					remove.type = "button";
+					remove.setAttribute("aria-label", `Remove ${application.role} at ${application.company}`);
+					remove.addEventListener("click", () => {
+						state.applications = state.applications.filter((item) => item.id !== application.id);
+						saveState();
+						renderApplications();
+					});
+					row.append(details, stage, remove);
+					applicationList.append(row);
+				});
+			}
+			document.querySelector("#stat-applications").textContent = String(state.applications.length);
+		}
+		document.querySelector("#application-form").addEventListener("submit", (event) => {
+			event.preventDefault();
+			const form = event.currentTarget;
+			const formData = new FormData(form);
+			const company = normalizeWhitespace(formData.get("company"));
+			const role = normalizeWhitespace(formData.get("role"));
+			form.elements.namedItem("company").value = company;
+			form.elements.namedItem("role").value = role;
+			state.applications.unshift({
+				id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+				company,
+				role,
+				stage: document.querySelector("#application-stage").value
+			});
+			saveState();
+			renderApplications();
+			form.reset();
+		});
+		renderApplications();
+
+		const questionIndex = ((state.questionIndex % questions.length) + questions.length) % questions.length;
+		state.questionIndex = questionIndex;
+		function renderQuestion() {
+			const question = questions[state.questionIndex];
+			document.querySelector("#question-category").textContent = `${question.category} · Practice prompt`;
+			document.querySelector("#question-text").textContent = question.text;
+			document.querySelector("#practice-count").textContent = `${state.practiceCount} practiced`;
+		}
+		document.querySelector("#next-question").addEventListener("click", () => {
+			state.questionIndex = (state.questionIndex + 1 + Math.floor(Math.random() * (questions.length - 1))) % questions.length;
+			saveState();
+			renderQuestion();
+			document.querySelector("#practice-feedback").textContent = "";
+		});
+		document.querySelector("#mark-practiced").addEventListener("click", () => {
+			state.practiceCount += 1;
+			saveState();
+			renderQuestion();
+			document.querySelector("#practice-feedback").textContent = "Practice logged";
+		});
+		document.querySelectorAll("[data-reflection]").forEach((checkbox) => {
+			checkbox.checked = Boolean(state.reflection[checkbox.dataset.reflection]);
+			checkbox.addEventListener("change", () => {
+				state.reflection[checkbox.dataset.reflection] = checkbox.checked;
+				saveState();
+			});
+		});
+		renderQuestion();
+
+		const aptitudeQuestions = [
+			{ category: "Numerical reasoning", question: "A student completes 18 of 24 practice problems. What percentage did they complete?", choices: ["65%", "70%", "75%", "80%"], answer: 2, explanation: "18 ÷ 24 = 0.75, which is 75%." },
+			{ category: "Number patterns", question: "What number comes next? 3, 6, 12, 24, …", choices: ["30", "36", "42", "48"], answer: 3, explanation: "Each number is doubled, so 24 × 2 = 48." },
+			{ category: "Work-rate reasoning", question: "Five people complete a task in 8 days at the same rate. How many days would 10 people need?", choices: ["2 days", "4 days", "6 days", "16 days"], answer: 1, explanation: "The task takes 5 × 8 = 40 person-days. At 10 people, 40 ÷ 10 = 4 days." },
+			{ category: "Verbal reasoning", question: "Choose the closest meaning to “concise”.", choices: ["Brief and clear", "Detailed and lengthy", "Uncertain", "Highly technical"], answer: 0, explanation: "Concise means expressing something clearly in few words." },
+			{ category: "Logical reasoning", question: "All lab assistants wear badges. Mira is a lab assistant. What follows?", choices: ["Mira manages the lab", "Mira wears a badge", "Everyone with a badge is an assistant", "Mira works every day"], answer: 1, explanation: "If all lab assistants wear badges and Mira is one, Mira wears a badge." }
+		];
+		state.aptitudeIndex = ((state.aptitudeIndex % aptitudeQuestions.length) + aptitudeQuestions.length) % aptitudeQuestions.length;
+		function renderAptitude() {
+			const question = aptitudeQuestions[state.aptitudeIndex];
+			document.querySelector("#aptitude-category").textContent = question.category;
+			document.querySelector("#aptitude-question").textContent = question.question;
+			const options = document.querySelector("#aptitude-options");
+			options.replaceChildren();
+			question.choices.forEach((choice, index) => {
+				const label = make("label", "aptitude-option");
+				const input = document.createElement("input");
+				input.type = "radio";
+				input.name = "aptitude-choice";
+				input.value = String(index);
+				input.checked = state.aptitudeChoice === index;
+				input.disabled = state.aptitudeAnswered;
+				input.addEventListener("change", () => {
+					state.aptitudeChoice = index;
+					saveState();
+				});
+				label.append(input, document.createTextNode(choice));
+				options.append(label);
+			});
+			const feedback = document.querySelector("#aptitude-feedback");
+			feedback.className = "aptitude-feedback";
+			feedback.textContent = state.aptitudeAnswered ? `${state.aptitudeChoice === question.answer ? "Correct. " : "Not quite. "}${question.explanation}` : "Select an answer, then check your reasoning.";
+			if (state.aptitudeAnswered) feedback.classList.add(state.aptitudeChoice === question.answer ? "correct" : "incorrect");
+			document.querySelector("#check-aptitude").disabled = state.aptitudeAnswered;
+			document.querySelector("#next-aptitude").disabled = !state.aptitudeAnswered;
+			document.querySelector("#aptitude-progress").textContent = `${state.aptitudeScore} correct · ${state.aptitudeTotal} answered`;
+		}
+		document.querySelector("#check-aptitude").addEventListener("click", () => {
+			if (!Number.isInteger(state.aptitudeChoice)) {
+				document.querySelector("#aptitude-feedback").textContent = "Choose an answer first.";
+				return;
+			}
+			state.aptitudeAnswered = true;
+			state.aptitudeTotal += 1;
+			if (state.aptitudeChoice === aptitudeQuestions[state.aptitudeIndex].answer) state.aptitudeScore += 1;
+			saveState();
+			renderAptitude();
+		});
+		document.querySelector("#next-aptitude").addEventListener("click", () => {
+			state.aptitudeIndex = (state.aptitudeIndex + 1) % aptitudeQuestions.length;
+			state.aptitudeChoice = null;
+			state.aptitudeAnswered = false;
+			saveState();
+			renderAptitude();
+		});
+		renderAptitude();
+
+		const dailyQuestions = [
+			{ category: "Resume basics", question: "Which resume bullet is strongest?", choices: ["Was responsible for club socials", "Helped with many tasks", "Planned 8 posts that increased event sign-ups by 20%", "Worked hard on a project"], answer: 2, explanation: "A strong bullet describes an action and specific evidence of its impact. Use accurate figures only." },
+			{ category: "Interview basics", question: "In the STAR answer structure, what does the “A” stand for?", choices: ["Aim", "Action", "Assessment", "Advice"], answer: 1, explanation: "STAR stands for Situation, Task, Action, and Result. Explain your own action clearly." },
+			{ category: "Job search", question: "What is a useful first step when tailoring a resume to a role?", choices: ["Copy every phrase from the posting", "Review the role requirements and choose relevant truthful examples", "Add skills you plan to learn later", "Send the same draft everywhere"], answer: 1, explanation: "Match relevant evidence to the role while keeping every claim accurate." },
+			{ category: "Study habits", question: "After a practice test, what is the most useful next step?", choices: ["Review errors and identify a topic to revisit", "Only repeat questions you already know", "Ignore the result", "Change your exam date immediately"], answer: 0, explanation: "Reviewing errors helps you find knowledge gaps and choose focused practice." },
+			{ category: "Skill growth", question: "Which is the best evidence that you practiced a skill?", choices: ["A list of skills you hope to learn", "A small project or example showing how you used it", "A job title you want", "A generic statement that you are motivated"], answer: 1, explanation: "A concrete example lets someone see how you applied the skill." }
+		];
+		function localDateKey(date = new Date()) {
+			return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+		}
+		const dailyDate = localDateKey();
+		const dayNumber = Math.floor((new Date(`${dailyDate}T00:00:00`) - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+		const dailyIndex = dayNumber % dailyQuestions.length;
+		function renderDailyQuiz() {
+			const quiz = dailyQuestions[dailyIndex];
+			const savedAnswer = state.dailyQuiz?.date === dailyDate ? state.dailyQuiz : null;
+			document.querySelector("#daily-category").textContent = `${quiz.category} · today's quiz`;
+			document.querySelector("#daily-question").textContent = quiz.question;
+			const options = document.querySelector("#daily-options");
+			options.replaceChildren();
+			quiz.choices.forEach((choice, index) => {
+				const label = make("label", "daily-option");
+				const input = document.createElement("input");
+				input.type = "radio";
+				input.name = "daily-choice";
+				input.value = String(index);
+				input.checked = savedAnswer?.choice === index;
+				input.disabled = Boolean(savedAnswer);
+				label.append(input, document.createTextNode(choice));
+				options.append(label);
+			});
+			const feedback = document.querySelector("#daily-feedback");
+			const submit = document.querySelector("#submit-daily-quiz");
+			if (savedAnswer) {
+				const correct = savedAnswer.choice === quiz.answer;
+				feedback.className = `daily-feedback ${correct ? "correct" : "incorrect"}`;
+				feedback.textContent = `${correct ? "Correct. " : `The answer is ${quiz.choices[quiz.answer]}. `}${quiz.explanation}`;
+				submit.disabled = true;
+				submit.textContent = "Completed for today";
+			} else {
+				feedback.className = "daily-feedback";
+				feedback.textContent = "Choose your answer to see the explanation.";
+				submit.disabled = false;
+				submit.textContent = "Check today's answer";
+			}
+		}
+		document.querySelector("#daily-quiz-form").addEventListener("submit", (event) => {
+			event.preventDefault();
+			const choice = document.querySelector("input[name='daily-choice']:checked");
+			if (!choice) {
+				document.querySelector("#daily-feedback").textContent = "Choose an answer first.";
+				return;
+			}
+			state.dailyQuiz = { date: dailyDate, choice: Number(choice.value) };
+			saveState();
+			renderDailyQuiz();
+		});
+		renderDailyQuiz();
+
+		const examForm = document.querySelector("#exam-form");
+		const examOutput = document.querySelector("#plan-output");
+		function renderExamPlan(exam) {
+			if (!exam) return;
+			const examName = normalizeWhitespace(exam.name || "");
+			const examTopics = normalizeWhitespace(exam.topics || "");
+			document.querySelector("#exam-name").value = examName;
+			document.querySelector("#exam-date").value = exam.date || "";
+			document.querySelector("#exam-topics").value = examTopics;
+			document.querySelector("#exam-hours").value = exam.hours || "4";
+			const examDate = new Date(`${exam.date}T00:00:00`);
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+			const daysLeft = Math.ceil((examDate - today) / 86400000);
+			if (!Number.isFinite(daysLeft) || daysLeft < 0) {
+				examOutput.replaceChildren(make("div", "plan-empty", "That exam date has passed. Choose an upcoming date to build a fresh plan."));
+				return;
+			}
+			const topics = examTopics.split(/[\n,;]+/).map(normalizeWhitespace).filter(Boolean).slice(0, 8);
+			if (!topics.length) return;
+			const plan = document.createElement("div");
+			plan.append(make("h3", "plan-title", examName));
+			plan.append(make("p", "plan-subtitle", `${daysLeft} days until your exam · ${exam.hours} study hours each week`));
+			const days = make("div", "plan-days");
+			const schedule = [
+				["Monday", topics[0]],
+				["Tuesday", topics[topics.length > 1 ? 1 : 0]],
+				["Wednesday", topics[topics.length > 2 ? 2 : 0]],
+				["Thursday", topics[topics.length > 1 ? 1 : 0]],
+				["Friday", topics[topics.length > 2 ? 2 : 0]],
+				["Saturday", "Timed practice or past questions"],
+				["Sunday", "Rest, then review the week's notes"]
+			];
+			schedule.forEach(([day, focus]) => {
+				const item = make("div", "plan-day");
+				item.append(make("strong", "", day), make("span", "", focus));
+				days.append(item);
+			});
+			plan.append(days);
+			plan.append(make("p", "plan-footnote", "Starting template based on the topics you entered. Check the official exam syllabus and date; adjust the schedule to your needs."));
+			examOutput.replaceChildren(plan);
+		}
+		if (state.exam) renderExamPlan(state.exam);
+		examForm.addEventListener("submit", (event) => {
+			event.preventDefault();
+			const formData = new FormData(examForm);
+			const name = normalizeWhitespace(formData.get("examName"));
+			const date = String(formData.get("examDate"));
+			const topics = normalizeWhitespace(formData.get("topics"));
+			const examDate = new Date(`${date}T00:00:00`);
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+			const feedback = document.querySelector("#exam-feedback");
+			feedback.classList.remove("error");
+			if (!date || Number.isNaN(examDate.getTime()) || examDate < today) {
+				feedback.textContent = "Choose today or a future date from your exam's official schedule.";
+				feedback.classList.add("error");
+				return;
+			}
+			const topicList = topics.split(/[\n,;]+/).map(normalizeWhitespace).filter(Boolean);
+			if (!topicList.length) {
+				feedback.textContent = "Add at least one topic from the official syllabus.";
+				feedback.classList.add("error");
+				return;
+			}
+			state.exam = { name, date, topics, hours: document.querySelector("#exam-hours").value };
+			saveState();
+			renderExamPlan(state.exam);
+			feedback.textContent = "Weekly plan updated and saved in this browser.";
+		});
+
+		const slides = Array.from(document.querySelectorAll(".main > .slide"));
+		const navigationLinks = Array.from(document.querySelectorAll(".nav-link"));
+		function updateCurrentNavigation() {
+			let activeSlide = slides[0];
+			for (const slide of slides) {
+				if (slide.getBoundingClientRect().top > 120) break;
+				activeSlide = slide;
+			}
+			navigationLinks.forEach((link) => {
+				const target = document.getElementById(link.hash.slice(1));
+				if (target && (target === activeSlide || activeSlide.contains(target))) {
+					link.setAttribute("aria-current", "location");
+				} else {
+					link.removeAttribute("aria-current");
+				}
+			});
+		}
+		window.addEventListener("scroll", updateCurrentNavigation, { passive: true });
+		window.addEventListener("hashchange", updateCurrentNavigation);
+		updateCurrentNavigation();
+	</script>
+</body>
+</html>
