@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#173f3a">
+	<title>PharmaTrace | Pharmacy Reference</title>
+	<style>
+		:root {
+			color-scheme: light;
+			font-family: "Avenir Next", Avenir, "Trebuchet MS", sans-serif;
+			font-synthesis: none;
+			color: #173a39;
+			background: #f1f3eb;
+			--ink: #173a39;
+			--muted: #647573;
+			--line: #d7ded6;
+			--paper: #fffefa;
+			--forest: #173f3a;
+			--leaf: #2f7867;
+			--lime: #d9e767;
+			--coral: #e4755e;
+			--ochre: #d9a83b;
+		}
+		* { box-sizing: border-box; }
+		body { min-width: 320px; margin: 0; background-color: #f1f3eb; background-image: repeating-linear-gradient(135deg, transparent 0 34px, #dce4d722 34px 35px); }
+		button, input { font: inherit; }
+		a { color: inherit; }
+		button:focus-visible, input:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid #d17b50; outline-offset: 3px; }
+		.app-shell { display: grid; grid-template-columns: 238px minmax(0, 1fr); min-height: 100vh; }
+		.sidebar { position: sticky; top: 0; display: flex; flex-direction: column; min-height: 100vh; height: 100vh; padding: 24px 16px 18px; background: var(--forest); color: #f2f5e9; }
+		.brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 26px; }
+		.brand-mark { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 10px 10px 10px 3px; background: var(--lime); color: var(--forest); font-size: 0.92rem; font-weight: 900; }
+		.brand-name { display: block; font-size: 1.02rem; font-weight: 800; }
+		.brand-subtitle { display: block; margin-top: 2px; color: #b7c9bd; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; }
+		.nav-label { margin: 10px 9px 8px; color: #9ab2a7; font-size: 0.64rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+		.side-nav { display: grid; gap: 4px; }
+		.nav-link { display: flex; align-items: center; gap: 11px; min-height: 42px; padding: 9px 10px; border-radius: 4px; color: #d5e0d7; font-size: 0.78rem; font-weight: 650; text-decoration: none; }
+		.nav-link:hover, .nav-link[aria-current="location"] { background: #ffffff19; color: #fff; }
+		.nav-icon { display: grid; width: 23px; height: 23px; place-items: center; border-radius: 6px; background: #ffffff14; color: var(--lime); font-size: 0.67rem; font-weight: 900; }
+		.side-bottom { margin-top: auto; padding: 13px 10px 0; border-top: 1px solid #ffffff27; color: #afc1b6; font-size: 0.68rem; line-height: 1.55; }
+		.side-bottom strong { display: block; margin-bottom: 4px; color: #e9f0e9; font-size: 0.72rem; }
+		.main { min-width: 0; width: min(100%, 1400px); margin-inline: auto; padding: 28px clamp(20px, 4vw, 58px) 52px; }
+		.topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 22px; }
+		.breadcrumb { margin: 0; color: var(--muted); font-size: 0.74rem; }
+		.top-status { display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid #d5ddd1; border-radius: 4px; background: #fafff0; color: #365d4e; font-size: 0.68rem; font-weight: 750; }
+		.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4b9e70; box-shadow: 0 0 0 3px #4b9e7020; }
+		.hero { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(270px, 0.92fr); gap: 28px; align-items: stretch; margin-bottom: 18px; overflow: hidden; border-radius: 7px; background: #dce96f; }
+		.hero-copy { display: flex; flex-direction: column; justify-content: center; padding: 32px 10px 32px 34px; }
+		.eyebrow { margin: 0 0 9px; color: #50694b; font-size: 0.66rem; font-weight: 850; letter-spacing: 0.12em; text-transform: uppercase; }
+		h1 { max-width: 530px; margin: 0; color: #1a3b36; font-family: Georgia, "Times New Roman", serif; font-size: 2.6rem; font-weight: 400; line-height: 1.05; }
+		.hero-copy > p:last-child { max-width: 440px; margin: 12px 0 0; color: #40594b; font-size: 0.83rem; line-height: 1.55; }
+		.hero-image { position: relative; min-height: 240px; margin: 0; overflow: hidden; background: #b9c9ae; }
+		.hero-image img { display: block; width: 100%; height: 100%; min-height: 240px; object-fit: cover; object-position: center; }
+		.hero-image figcaption { position: absolute; inset: auto 0 0; padding: 32px 17px 13px; background: linear-gradient(transparent, #19352fce); color: white; font-size: 0.7rem; font-weight: 700; }
+		.clinical-warning { display: flex; align-items: flex-start; gap: 11px; margin: 0 0 26px; padding: 12px 14px; border-left: 4px solid var(--coral); background: #fff0e9; color: #653b31; font-size: 0.73rem; line-height: 1.5; }
+		.warning-symbol { display: grid; flex: 0 0 auto; width: 20px; height: 20px; place-items: center; border-radius: 50%; background: #f0c2ae; color: #653b31; font-weight: 900; }
+		.clinical-warning strong { color: #4f2c25; }
+		.section { scroll-margin-top: 20px; margin: 0 0 32px; }
+		.section-heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 12px; }
+		h2 { margin: 0; color: var(--ink); font-size: 1.2rem; letter-spacing: 0; }
+		.section-subtitle { margin: 5px 0 0; color: var(--muted); font-size: 0.75rem; line-height: 1.5; }
+		.source-label { display: inline-flex; align-items: center; gap: 6px; color: #5e706e; font-size: 0.65rem; font-weight: 700; }
+		.source-label::before { width: 7px; height: 7px; border-radius: 50%; background: #4b9e70; content: ""; }
+		.lookup-panel { padding: 19px; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); }
+		.lookup-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 9px; }
+		.lookup-input { min-width: 0; min-height: 44px; padding: 10px 13px; border: 1px solid #c8d2ca; border-radius: 4px; background: #fff; color: var(--ink); font-size: 0.82rem; }
+		.lookup-button { min-height: 44px; padding: 10px 17px; border: 0; border-radius: 4px; background: var(--forest); color: white; font-size: 0.75rem; font-weight: 800; cursor: pointer; }
+		.lookup-button:hover { background: #2f6657; }
+		.lookup-hint { margin: 8px 0 0; color: var(--muted); font-size: 0.67rem; line-height: 1.45; }
+		.lookup-status { min-height: 1.2em; margin: 12px 0 0; color: #536966; font-size: 0.75rem; }
+		.lookup-status.error { color: #a23d32; }
+		.results { display: grid; gap: 10px; margin-top: 12px; }
+		.drug-result { overflow: hidden; border: 1px solid #d9dfd7; border-left: 4px solid var(--leaf); border-radius: 4px; background: #fff; }
+		.drug-result-head { display: flex; justify-content: space-between; align-items: start; gap: 18px; padding: 14px 15px 11px; }
+		.drug-result h3 { margin: 0 0 4px; color: #214841; font-size: 0.92rem; }
+		.drug-meta { margin: 0; color: #62726e; font-size: 0.69rem; line-height: 1.5; }
+		.product-type { flex: 0 0 auto; padding: 5px 7px; border-radius: 3px; background: #edf2d6; color: #53623b; font-size: 0.62rem; font-weight: 800; text-transform: uppercase; }
+		.label-source { display: inline-block; margin: 0 15px 12px; color: #236a61; font-size: 0.67rem; font-weight: 750; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+		.label-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #e6eae3; border-top: 1px solid #e6eae3; }
+		.label-section { min-width: 0; background: #fbfcf8; }
+		.label-section summary { padding: 10px 12px; color: #425854; font-size: 0.7rem; font-weight: 800; cursor: pointer; }
+		.label-excerpt { max-height: 230px; overflow: auto; padding: 0 12px 12px; color: #526461; font-size: 0.69rem; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+		.summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 18px 0 29px; }
+		.summary-tile { min-height: 104px; padding: 13px; border: 1px solid #d7ded5; border-radius: 4px; background: #fbfcf7; text-decoration: none; }
+		.summary-tile:hover { border-color: #83aa90; background: #f6f9ed; }
+		.tile-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; color: #566a63; font-size: 0.65rem; font-weight: 700; }
+		.tile-state { display: inline-flex; align-items: center; gap: 5px; color: #a35b36; font-size: 0.61rem; font-weight: 800; }
+		.tile-state::before { width: 6px; height: 6px; border-radius: 50%; background: var(--coral); content: ""; }
+		.summary-tile strong { display: block; color: #1a4941; font-size: 1.1rem; }
+		.summary-tile small { display: block; margin-top: 4px; color: #6a7975; font-size: 0.65rem; }
+		.modules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+		.module { display: flex; flex-direction: column; min-width: 0; min-height: 193px; padding: 17px; border: 1px solid #d8ded7; border-radius: 5px; background: #fffefa; scroll-margin-top: 20px; }
+		.module:nth-child(4n + 1) { border-top: 4px solid #39816b; }
+		.module:nth-child(4n + 2) { border-top: 4px solid #df765d; }
+		.module:nth-child(4n + 3) { border-top: 4px solid #d6a53c; }
+		.module:nth-child(4n + 4) { border-top: 4px solid #7d8f52; }
+		.module-heading { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+		.module h3 { margin: 0; color: #204a43; font-size: 0.96rem; }
+		.connection-state { flex: 0 0 auto; padding: 5px 7px; border-radius: 3px; background: #fff0e7; color: #a45431; font-size: 0.61rem; font-weight: 800; text-transform: uppercase; }
+		.module p { margin: 12px 0 14px; color: #566966; font-size: 0.74rem; line-height: 1.55; }
+		.module-link { align-self: flex-start; margin-top: auto; padding: 7px 9px; border: 1px solid #b9c9bd; border-radius: 3px; background: transparent; color: #285d50; font-size: 0.67rem; font-weight: 800; text-decoration: none; }
+		.module-link:hover { background: #edf4e9; }
+		.integration-note { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; padding: 16px 18px; border-radius: 5px; background: #e3ebe3; }
+		.integration-note h3 { margin: 0 0 6px; color: #274c42; font-size: 0.82rem; }
+		.integration-note p { margin: 0; color: #5d7068; font-size: 0.7rem; line-height: 1.55; }
+		.footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 29px; padding-top: 13px; border-top: 1px solid #d3dbd3; color: #72807a; font-size: 0.64rem; line-height: 1.5; }
+		@media (max-width: 1040px) {
+			.app-shell { grid-template-columns: 205px minmax(0, 1fr); }
+			.summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+			.hero { grid-template-columns: minmax(0, 1fr) minmax(220px, 0.8fr); gap: 10px; }
+			h1 { font-size: 2.25rem; }
+		}
+		@media (max-width: 760px) {
+			.app-shell { grid-template-columns: minmax(0, 1fr); }
+			.sidebar { position: static; min-width: 0; min-height: 0; height: auto; padding: 12px 14px 10px; }
+			.brand { padding: 0 2px 12px; }
+			.brand-mark { width: 32px; height: 32px; }
+			.nav-label, .side-bottom { display: none; }
+			.side-nav { display: flex; width: 100%; min-width: 0; gap: 4px; overflow-x: auto; padding: 2px 0 5px; }
+			.nav-link { flex: 0 0 auto; min-height: 36px; padding: 7px 9px; font-size: 0.68rem; }
+			.nav-icon { width: 20px; height: 20px; }
+			.main { padding: 19px 16px 36px; }
+			.hero { grid-template-columns: 1fr 0.8fr; }
+			.hero-copy { padding: 23px 4px 23px 21px; }
+			.hero-image, .hero-image img { min-height: 210px; }
+			.summary-grid { gap: 8px; }
+			.module { min-height: 205px; padding: 14px; }
+		}
+		@media (max-width: 520px) {
+			.topbar { align-items: flex-start; flex-direction: column; gap: 8px; }
+			.top-status { font-size: 0.63rem; }
+			.hero { grid-template-columns: 1fr; }
+			.hero-copy { padding: 23px 20px 10px; }
+			h1 { font-size: 2.15rem; }
+			.hero-image, .hero-image img { min-height: 150px; max-height: 180px; }
+			.lookup-panel { padding: 13px; }
+			.lookup-form { grid-template-columns: 1fr; }
+			.lookup-button { width: 100%; }
+			.summary-grid { grid-template-columns: 1fr 1fr; }
+			.summary-tile { min-height: 94px; padding: 10px; }
+			.tile-top { align-items: flex-start; flex-direction: column; gap: 5px; margin-bottom: 8px; }
+			.modules, .integration-note { grid-template-columns: 1fr; }
+			.module { min-height: 0; }
+			.label-sections { grid-template-columns: 1fr; }
+			.drug-result-head { flex-direction: column; gap: 7px; }
+			.footer { flex-direction: column; gap: 5px; }
+		}
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+		}
+	</style>
+</head>
+<body>
+	<div class="app-shell">
+		<aside class="sidebar">
+			<a class="brand" href="#overview" aria-label="PharmaTrace home">
+				<span class="brand-mark" aria-hidden="true">PT</span>
+				<span><span class="brand-name">PharmaTrace</span><span class="brand-subtitle">Hospital pharmacy desk</span></span>
+			</a>
+			<p class="nav-label">Reference desk</p>
+			<nav class="side-nav" aria-label="Pharmacy reference sections">
+				<a class="nav-link" href="#overview" aria-current="location"><span class="nav-icon" aria-hidden="true">OV</span>Overview</a>
+				<a class="nav-link" href="#label-lookup"><span class="nav-icon" aria-hidden="true">Rx</span>Label lookup</a>
+				<a class="nav-link" href="#formulary"><span class="nav-icon" aria-hidden="true">F</span>Formulary</a>
+				<a class="nav-link" href="#interaction-check"><span class="nav-icon" aria-hidden="true">↔</span>Interactions</a>
+				<a class="nav-link" href="#antimicrobial"><span class="nav-icon" aria-hidden="true">AB</span>Antibiotic guide</a>
+				<a class="nav-link" href="#renal-dosing"><span class="nav-icon" aria-hidden="true">R</span>Renal dosing</a>
+				<a class="nav-link" href="#stock-status"><span class="nav-icon" aria-hidden="true">ST</span>Stock status</a>
+			</nav>
+			<div class="side-bottom"><strong>Source-aware reference</strong>Public product labels are separate from approved hospital policy and live clinical systems.</div>
+		</aside>
+		<main class="main" id="overview">
+			<header class="topbar">
+				<p class="breadcrumb">Pharmacy services <span aria-hidden="true">/</span> Reference desk</p>
+				<div class="top-status"><span class="status-dot" aria-hidden="true"></span>Public FDA label lookup · online when connected</div>
+			</header>
+			<section class="hero" aria-labelledby="page-title">
+				<div class="hero-copy">
+					<p class="eyebrow">Clinical pharmacy · source first</p>
+					<h1 id="page-title">Medication facts, with the source in view.</h1>
+					<p>Search public product labels and see what still needs your hospital's approved formulary, guidance, interaction, and stock systems.</p>
+				</div>
+				<figure class="hero-image">
+					<img src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=1200&q=85" alt="Medicines arranged on a pharmacy counter" fetchpriority="high">
+					<figcaption>One pharmacy reference desk · multiple trusted sources</figcaption>
+				</figure>
+			</section>
+			<aside class="clinical-warning" aria-label="Clinical use notice">
+				<span class="warning-symbol" aria-hidden="true">!</span>
+				<div><strong>Reference only, not a clinical decision tool.</strong> Public product labels may be incomplete or differ from locally approved products. Confirm care decisions in your current hospital systems and with your pharmacist or prescriber.</div>
+			</aside>
+			<section class="section" id="label-lookup" aria-labelledby="lookup-heading">
+				<div class="section-heading">
+					<div><h2 id="lookup-heading">Public drug-label lookup</h2><p class="section-subtitle">Search FDA-submitted product labeling by generic or brand name.</p></div>
+					<span class="source-label">openFDA drug labeling</span>
+				</div>
+				<div class="lookup-panel">
+					<form class="lookup-form" id="lookup-form">
+						<label hidden for="drug-search">Search a generic or brand drug name</label>
+						<input class="lookup-input" id="drug-search" name="drug" type="search" placeholder="Try a generic or brand name" autocomplete="off" required>
+						<button class="lookup-button" id="lookup-button" type="submit">Search public labels</button>
+					</form>
+					<p class="lookup-hint">Source: FDA Structured Product Labeling via openFDA. Public labels are not a substitute for your hospital's formulary or patient-specific review.</p>
+					<p class="lookup-status" id="lookup-status" role="status" aria-live="polite"></p>
+					<div class="results" id="results"></div>
+				</div>
+			</section>
+			<section class="section" aria-labelledby="connections-heading">
+				<div class="section-heading">
+					<div><h2 id="connections-heading">Hospital reference connections</h2><p class="section-subtitle">Institution-specific feeds are not configured in this standalone demo.</p></div>
+					<span class="source-label" style="--source-color:#d98752">1 public source available</span>
+				</div>
+				<div class="summary-grid" aria-label="Hospital data connection status">
+					<a class="summary-tile" href="#formulary"><span class="tile-top">Local formulary <span class="tile-state">Not connected</span></span><strong>—</strong><small>Requires hospital formulary feed</small></a>
+					<a class="summary-tile" href="#interaction-check"><span class="tile-top">Interaction service <span class="tile-state">Not connected</span></span><strong>—</strong><small>No pairwise screening performed</small></a>
+					<a class="summary-tile" href="#antimicrobial"><span class="tile-top">Stewardship guide <span class="tile-state">Not connected</span></span><strong>—</strong><small>Use current local guidance</small></a>
+					<a class="summary-tile" href="#stock-status"><span class="tile-top">Live inventory <span class="tile-state">Not connected</span></span><strong>—</strong><small>No stock levels shown</small></a>
+				</div>
+				<div class="modules">
+					<article class="module" id="formulary">
+						<div class="module-heading"><h3>Hospital formulary</h3><span class="connection-state">Source needed</span></div>
+						<p>Drug membership, restrictions, preferred products, and approval notes require your organization's maintained formulary source.</p>
+						<a class="module-link" href="#integration-notes">Connection requirements</a>
+					</article>
+					<article class="module" id="interaction-check">
+						<div class="module-heading"><h3>Drug interaction screening</h3><span class="connection-state">Not active</span></div>
+						<p>No pairwise interaction check is available here. Connect an approved interaction service before using this workflow; a missing result must never be treated as “no interaction.”</p>
+						<a class="module-link" href="#integration-notes">Connection requirements</a>
+					</article>
+					<article class="module" id="antimicrobial">
+						<div class="module-heading"><h3>Antimicrobial guidance</h3><span class="connection-state">Local guide needed</span></div>
+						<p>Empiric therapy, antibiogram, and escalation pathways depend on site policy and local susceptibility data. No treatment guidance is supplied by this demo.</p>
+						<a class="module-link" href="#integration-notes">Connection requirements</a>
+					</article>
+					<article class="module" id="renal-dosing">
+						<div class="module-heading"><h3>Renal dosing reference</h3><span class="connection-state">Clinical source needed</span></div>
+						<p>Public labels may contain renal or special-population text in label results. Patient-specific dose adjustment is not calculated here; confirm with approved references and clinical review.</p>
+						<a class="module-link" href="#label-lookup">Search public label text</a>
+					</article>
+					<article class="module" id="stock-status">
+						<div class="module-heading"><h3>Medicine stock</h3><span class="connection-state">Inventory needed</span></div>
+						<p>On-hand, reserved, and shortage quantities must come from a current pharmacy inventory feed. No stock values are simulated or displayed.</p>
+						<a class="module-link" href="#integration-notes">Connection requirements</a>
+					</article>
+				</div>
+				<div class="integration-note" id="integration-notes">
+					<div><h3>For hospital deployment</h3><p>Connect an approved formulary, drug-interaction vendor, antimicrobial guideline repository, renal dosing reference, and pharmacy inventory service. Keep credentials and patient data behind a secured, audited backend.</p></div>
+					<div><h3>Source and privacy boundary</h3><p>This page sends only the searched drug name to the public openFDA label endpoint. It has no patient record access, does not store searches, and does not connect to hospital systems.</p></div>
+				</div>
+			</section>
+			<footer class="footer"><span>PharmaTrace prototype · Public product labels are references, not verified hospital guidance.</span><span>Always confirm current source, institution policy, and patient-specific context.</span></footer>
+		</main>
+	</div>
+	<script>
+		const lookupForm = document.querySelector("#lookup-form");
+		const searchInput = document.querySelector("#drug-search");
+		const lookupButton = document.querySelector("#lookup-button");
+		const lookupStatus = document.querySelector("#lookup-status");
+		const results = document.querySelector("#results");
+
+		function makeElement(tag, className, text) {
+			const element = document.createElement(tag);
+			if (className) element.className = className;
+			if (text) element.textContent = text;
+			return element;
+		}
+
+		function labelText(value) {
+			if (!value) return "No section provided in this product label.";
+			const parser = new DOMParser();
+			const plainText = parser.parseFromString(String(value), "text/html").body.textContent || "";
+			const excerpt = plainText.replace(/\s+/g, " ").trim();
+			return excerpt.length > 2400 ? `${excerpt.slice(0, 2400)} … [excerpt shortened]` : excerpt;
+		}
+
+		function renderProduct(product, index) {
+			const openfda = product.openfda || {};
+			const brand = openfda.brand_name?.[0] || "Unbranded product";
+			const generic = openfda.generic_name?.[0] || "Generic name not supplied";
+			const headingName = brand === "Unbranded product" ? generic : brand;
+			const card = makeElement("article", "drug-result");
+			const header = makeElement("div", "drug-result-head");
+			const titleGroup = makeElement("div");
+			titleGroup.append(makeElement("h3", "", headingName));
+			const manufacturer = openfda.manufacturer_name?.[0] || "Manufacturer not supplied";
+			const route = openfda.route?.join(", ") || "Route not supplied";
+			titleGroup.append(makeElement("p", "drug-meta", `${generic} · ${manufacturer} · ${route}`));
+			header.append(titleGroup);
+			if (openfda.product_type?.[0]) header.append(makeElement("span", "product-type", openfda.product_type[0]));
+			card.append(header);
+
+			const setId = openfda.spl_set_id?.[0];
+			const sourceLink = makeElement("a", "label-source", "View source label on DailyMed");
+			sourceLink.href = setId
+				? `https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=${encodeURIComponent(setId)}`
+				: "https://open.fda.gov/apis/drug/label/";
+			sourceLink.target = "_blank";
+			sourceLink.rel = "noopener noreferrer";
+			card.append(sourceLink);
+
+			const labelSections = makeElement("div", "label-sections");
+			const sectionFields = [
+				["Indications", product.indications_and_usage?.[0]],
+				["Dosage and administration", product.dosage_and_administration?.[0]],
+				["Drug interactions · label text", product.drug_interactions?.[0]],
+				["Renal / special populations · label text", product.use_in_specific_populations?.[0] || product.renal_impairment?.[0]],
+				["Warnings", product.warnings_and_cautions?.[0] || product.warnings?.[0]]
+			];
+			sectionFields.forEach(([title, value], sectionIndex) => {
+				const details = document.createElement("details");
+				details.className = "label-section";
+				if (index === 0 && sectionIndex === 0) details.open = true;
+				const summary = makeElement("summary", "", title);
+				const excerpt = makeElement("div", "label-excerpt", labelText(value));
+				details.append(summary, excerpt);
+				labelSections.append(details);
+			});
+			card.append(labelSections);
+			return card;
+		}
+
+		lookupForm.addEventListener("submit", async (event) => {
+			event.preventDefault();
+			const term = searchInput.value.trim().replace(/[\\"\u0000-\u001f]/g, " ").replace(/\s+/g, " ").slice(0, 80);
+			if (!term) return;
+
+			const query = `openfda.generic_name:"${term}" OR openfda.brand_name:"${term}"`;
+			const params = new URLSearchParams({ search: query, limit: "5" });
+			lookupButton.disabled = true;
+			lookupButton.textContent = "Searching…";
+			lookupStatus.classList.remove("error");
+			lookupStatus.textContent = "Searching public FDA-submitted labels…";
+			results.replaceChildren();
+			try {
+				const response = await fetch(`https://api.fda.gov/drug/label.json?${params.toString()}`);
+				const data = await response.json();
+				if (!response.ok) {
+					if (response.status === 404) {
+						lookupStatus.textContent = `No public label matched “${term}”. Check the spelling or try a generic name.`;
+						return;
+					}
+					throw new Error(data.error?.message || `Label service returned ${response.status}.`);
+				}
+				const products = data.results || [];
+				if (!products.length) {
+					lookupStatus.textContent = `No public label matched “${term}”.`;
+					return;
+				}
+				products.forEach((product, index) => results.append(renderProduct(product, index)));
+				lookupStatus.textContent = `${products.length} label ${products.length === 1 ? "record" : "records"} returned. Retrieved ${new Date().toLocaleString()}. Confirm the exact product and current label at the source.`;
+			} catch (error) {
+				lookupStatus.classList.add("error");
+				lookupStatus.textContent = `Label lookup unavailable: ${error.message} Check the network and try again.`;
+			} finally {
+				lookupButton.disabled = false;
+				lookupButton.textContent = "Search public labels";
+			}
+		});
+
+		const navLinks = document.querySelectorAll(".nav-link");
+		navLinks.forEach((link) => {
+			link.addEventListener("click", () => {
+				navLinks.forEach((item) => item.removeAttribute("aria-current"));
+				link.setAttribute("aria-current", "location");
+			});
+		});
+	</script>
+</body>
+</html>
